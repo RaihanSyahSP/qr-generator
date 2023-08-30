@@ -1,9 +1,9 @@
 export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
-  name: "Next.js",
+  name: "QR Generator",
   description:
-    "Beautifully designed components built with Radix UI and Tailwind CSS.",
+    "A web app for generate QR Code.",
   mainNav: [
     {
       title: "Home",
