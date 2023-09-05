@@ -97,14 +97,14 @@ export default function IndexPage() {
             <Input
               name="imageWidth"
               htmlFor="imageWidth"
-              label="Logo Image Width(optional)"
+              label="Logo Width(optional)"
               type="number"
               onChange={handleLogoWidthChange}
             />
             <Input
               name="imageHeight"
               htmlFor="imageHeight"
-              label="Logo Image Height(optional)"
+              label="Logo Height(optional)"
               type="number"
               onChange={handleLogoHeightChange}
             />
