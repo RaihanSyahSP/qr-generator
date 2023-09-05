@@ -2,8 +2,7 @@ export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
   name: "QR Generator",
-  description:
-    "A web app for generate QR Code.",
+  description: "A web app for generate QR Code.",
   mainNav: [
     {
       title: "Home",
@@ -11,8 +10,7 @@ export const siteConfig = {
     },
   ],
   links: {
-    twitter: "https://twitter.com/shadcn",
-    github: "https://github.com/shadcn/ui",
-    docs: "https://ui.shadcn.com",
+    instagram: "https://instagram.com/raihansyahsp",
+    github: "https://github.com/RaihanSyahSP/qr-generator",
   },
 }

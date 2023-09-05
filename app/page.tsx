@@ -1,52 +1,52 @@
 "use client";
 
-import * as z from "zod"
-import Link from "next/link";
-
-import { zodResolver } from "@hookform/resolvers/zod";
-import { siteConfig } from "@/config/site";
-import { useForm } from "react-hook-form";
-import { buttonVariants } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
+import { useState } from "react";
+import * as htmlToImage from "html-to-image";
+import { QRCode } from "react-qrcode-logo";
+import { QRStyleOptions } from "@/lib/constant";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import Select from "@/components/ui/select";
 
 export default function IndexPage() {
-  const formSchema = z.object({
-    content: z.string().min(2, {
-      message: "Username must be at least 2 characters.",
-    }),
-  })
+  const [QRValue, setQRValue] = useState("https://react.dev")
+  const [QRStyle, setQRStyle] = useState<"squares" | "dots">("squares")
+  const [logoWidth, setLogoWidth] = useState<number>(40)
+  const [logoHeight, setLogoHeight] = useState<number>(40)
+  const [imageURL, setImageURL] = useState<string>(
+    "https://ionicframework.com/docs/icons/logo-react-icon.png"
+  )
 
-  const form = useForm<z.infer<typeof formSchema>>({
-      resolver: zodResolver(formSchema),
-      defaultValues: {
-        content: "https://github.com",
-      },
-  })
-    
-  function onSubmit(values: z.infer<typeof formSchema>) {
-      // Do something with the form values.
-      // ✅ This will be type-safe and validated.
-      console.log(values)
+  const handleQRValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQRValue(e.target.value)
   }
 
+  const handleQRLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImageURL(e.target.value)
+  }
+
+  const handleQRStyleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setQRStyle(e.target.value as "squares" | "dots")
+  }
+
+  const handleLogoHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLogoHeight(Number(e.target.value))
+  }
+
+  const handleLogoWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLogoWidth(Number(e.target.value))
+  }
+
+  const handleDownload = () => {
+    htmlToImage
+      .toJpeg(document.getElementById("qr-code-wrapper")!)
+      .then((dataUrl) => {
+        const link = document.createElement("a")
+        link.download = "image.jpeg"
+        link.href = dataUrl
+        link.click()
+      })
+  }
 
   return (
     <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">
@@ -59,144 +59,66 @@ export default function IndexPage() {
         </p>
       </div>
       <div className="mx-auto flex flex-col items-center gap-2 text-start md:max-w-[700px]">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 sm:w-[300px] md:w-[400px] ">
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Content</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://github.com" {...field}/>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+        <div id="qr-code-wrapper">
+            <QRCode
+              id="qr-code"
+              size={220}
+              value={QRValue}
+              qrStyle={QRStyle}
+              eyeRadius={10}
+              logoImage={imageURL}
+              logoHeight={logoHeight}
+              logoWidth={logoWidth}
+              enableCORS={true}
+          />
+            <p className="break-word text-darkpurple-300 w-60 bg-sky-600 text-center">
+              {QRValue}
+            </p>
+        </div>
+        
+        <div className="space-y-3 sm:w-[300px] md:w-[400px] ">
+          <Input
+            name="content"
+            htmlFor="content"
+            placeholder="https://github.com"
+            label="Content"
+            onChange={handleQRValueChange}
+            value={QRValue}
+          />
+          <Input
+            name="imageUrl"
+            htmlFor="imageUrl"
+            placeholder="https://github.com"
+            label="Logo URL (optional)"
+            onChange={handleQRLogoChange}
+            value={imageURL}
+          />
+          <div className="flex flex-row gap-3 pt-1">
+            <Input
+              name="imageWidth"
+              htmlFor="imageWidth"
+              label="Logo Image Width(optional)"
+              type="number"
+              onChange={handleLogoWidthChange}
             />
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Logo Image URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://github.com" {...field}/>
-                  </FormControl>
-                  {/* <FormDescription>
-                    This is URL.
-                  </FormDescription> */}
-                  <FormMessage />
-                </FormItem>
-              )}
+            <Input
+              name="imageHeight"
+              htmlFor="imageHeight"
+              label="Logo Image Height(optional)"
+              type="number"
+              onChange={handleLogoHeightChange}
             />
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <div>
-                  <FormItem>
-                    <FormLabel>Logo Image Opacity (if any)</FormLabel>
-                    <Slider defaultValue={[33]} max={100} step={1} />
-                  </FormItem>
-                </div>
-              )}
-            />
-            <div className="flex flex-row gap-3 pt-1"> 
-              <FormField
-                control={form.control}
-                name="content"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Logo image width(optional)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://github.com" {...field} type="number"/>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="content"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Logo image height(optional)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://github.com" {...field}/>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>QR Style</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a verified email to display" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="m@example.com">m@example.com</SelectItem>
-                      <SelectItem value="m@google.com">m@google.com</SelectItem>
-                      <SelectItem value="m@support.com">m@support.com</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>QR Color Mode</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a verified email to display" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="m@example.com">m@example.com</SelectItem>
-                      <SelectItem value="m@google.com">m@google.com</SelectItem>
-                      <SelectItem value="m@support.com">m@support.com</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit">Submit</Button>
-          </form>
-        </Form>
-
+          </div>
+          <Select
+            labelName="QR Style"
+            selectOptions={QRStyleOptions}
+            onChange={handleQRStyleChange}
+            defaultValue={QRStyle}
+            labelHTMLFor="qr-style"
+          />
+          <Button type="submit" className="w-full" onClick={handleDownload}>Download</Button>
+        </div>
       </div>
-      {/* <div className="flex gap-4">
-        <Link
-          href={siteConfig.links.docs}
-          target="_blank"
-          rel="noreferrer"
-          className={buttonVariants()}
-        >
-          Documentation
-        </Link>
-        <Link
-          target="_blank"
-          rel="noreferrer"
-          href={siteConfig.links.github}
-          className={buttonVariants({ variant: "outline" })}
-        >
-          GitHub
-        </Link>
-      </div> */}
     </section>
   )
 }
